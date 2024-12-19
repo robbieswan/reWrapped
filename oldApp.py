@@ -2,7 +2,7 @@ import os
 import requests
 import pandas as pd
 import streamlit as st
-from streamlit_extras.let_it_rain import rain
+# from streamlit_extras.let_it_rain import rain
 
 # Spotify API Configuration
 SPOTIFY_AUTH_URL = "https://accounts.spotify.com/authorize"
@@ -75,13 +75,13 @@ def format_top_artists(data):
     return artists
 
 # Function to add animation
-def example():
-    rain(
-        emoji="🎈",
-        font_size=54,
-        falling_speed=5,
-        animation_length=4,
-    )
+# def example():
+#     rain(
+#         emoji="🎈",
+#         font_size=54,
+#         falling_speed=5,
+#         animation_length=4,
+#     )
 
 # Function to calculate uniqueness based on popularity
 def calculate_uniqueness(data):
