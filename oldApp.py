@@ -2,6 +2,7 @@ import os
 import requests
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 # Spotify API Configuration
 SPOTIFY_AUTH_URL = "https://accounts.spotify.com/authorize"
@@ -133,7 +134,7 @@ else:
 
             with col2:
                 st.markdown(f"**{idx}. {track['Name']}** by {track['Artist']}", unsafe_allow_html=True)
-                st.markdown(f"<iframe style='border-radius:12px' src='{track['Track URL']}' width='100%' height='152' frameborder='0' allowfullscreen='' allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture' loading='lazy'></iframe>", unsafe_allow_html=True)
+                components.iframe(track['Track URL'], width=400, height=152, scrolling=False)
 
     if top_artists_data:
         st.write("Your Top Artists:")
@@ -150,4 +151,4 @@ else:
 
             with col2:
                 st.markdown(f"**{idx}. {artist['Name']}**", unsafe_allow_html=True)
-                st.markdown(f"<iframe style='border-radius:12px' src='{artist['Spotify URL']}' width='100%' height='152' frameborder='0' allowfullscreen='' allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture' loading='lazy'></iframe>", unsafe_allow_html=True)
+                components.iframe(artist['Spotify URL'], width=400, height=152, scrolling=False)
