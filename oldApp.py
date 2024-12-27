@@ -11,7 +11,7 @@ SPOTIFY_API_URL = "https://api.spotify.com/v1/me/top/"
 
 CLIENT_ID = '55ae96424a324fdc94a7c741218818d1'
 CLIENT_SECRET = 'bad2752d4c4d451da8b3dab0ca76481d'
-REDIRECT_URI = 'http://localhost:8501'
+REDIRECT_URI = 'https://rewrapped.streamlit.app/'
 SCOPES = "user-top-read"
 
 def get_auth_url():
