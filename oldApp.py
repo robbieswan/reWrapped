@@ -58,7 +58,8 @@ def format_top_tracks(data):
             "Album Name": track["album"]["name"],
             "Album Image URL": track["album"]["images"][0]["url"] if track["album"].get("images") else None,
             "Track Preview URL": track["preview_url"],
-            "Popularity": track["popularity"]  # Popularity score for uniqueness
+            "Popularity": track["popularity"],
+            "Track URL": track["external_urls"]["spotify"]  # Spotify URL for embedding
         } for track in data.get("items", [])
     ]
     return tracks
@@ -69,8 +70,8 @@ def format_top_artists(data):
         {
             "Name": artist["name"],
             "Image URL": artist["images"][0]["url"] if artist.get("images") else None,
-            "Popularity": artist["popularity"],  # Popularity score for uniqueness
-            "Spotify URL": artist["external_urls"].get("spotify")
+            "Popularity": artist["popularity"],
+            "Spotify URL": artist["external_urls"].get("spotify")  # Spotify URL for embedding
         } for artist in data.get("items", [])
     ]
     return artists
@@ -132,8 +133,7 @@ else:
 
             with col2:
                 st.markdown(f"**{idx}. {track['Name']}** by {track['Artist']}", unsafe_allow_html=True)
-                if track["Track Preview URL"]:
-                    st.audio(track["Track Preview URL"], format="audio/mp3")
+                st.markdown(f"<iframe style='border-radius:12px' src='{track['Track URL']}' width='100%' height='152' frameborder='0' allowfullscreen='' allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture' loading='lazy'></iframe>", unsafe_allow_html=True)
 
     if top_artists_data:
         st.write("Your Top Artists:")
@@ -150,5 +150,4 @@ else:
 
             with col2:
                 st.markdown(f"**{idx}. {artist['Name']}**", unsafe_allow_html=True)
-                if artist["Spotify URL"]:
-                    st.markdown(f"[Listen on Spotify]({artist['Spotify URL']})", unsafe_allow_html=True)
+                st.markdown(f"<iframe style='border-radius:12px' src='{artist['Spotify URL']}' width='100%' height='152' frameborder='0' allowfullscreen='' allow='autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture' loading='lazy'></iframe>", unsafe_allow_html=True)
