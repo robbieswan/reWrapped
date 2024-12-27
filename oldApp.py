@@ -57,6 +57,7 @@ def format_top_tracks(data):
             "Artist": ", ".join([artist["name"] for artist in track["artists"]]),
             "Album Name": track["album"]["name"],
             "Album Image URL": track["album"]["images"][0]["url"] if track["album"].get("images") else None,
+            "Track Preview URL": track["preview_url"],
             "Popularity": track["popularity"]  # Popularity score for uniqueness
         } for track in data.get("items", [])
     ]
@@ -68,25 +69,23 @@ def format_top_artists(data):
         {
             "Name": artist["name"],
             "Image URL": artist["images"][0]["url"] if artist.get("images") else None,
-            "Popularity": artist["popularity"]  # Popularity score for uniqueness
+            "Popularity": artist["popularity"],  # Popularity score for uniqueness
+            "Spotify URL": artist["external_urls"].get("spotify")
         } for artist in data.get("items", [])
     ]
     return artists
 
 def calculate_uniqueness(data):
     """Calculate uniqueness based on popularity score and return the top 10 unique items."""
-    # Sort items based on popularity score in ascending order (most unique comes first)
     unique_items = sorted(data, key=lambda x: x.get('Popularity', 0))
     return unique_items[:10]
 
 # Streamlit app
 st.title("Welcome to Spotify (Re)Wrapped")
 
-# Check if access token is already in session state
 if "access_token" not in st.session_state:
     st.session_state["access_token"] = None
 
-# Check for authentication status and URL params
 auth_code = st.query_params.get("code")
 
 if auth_code and st.session_state["access_token"] is None:
@@ -97,7 +96,6 @@ if auth_code and st.session_state["access_token"] is None:
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
-# If not authenticated, show the authentication link
 if st.session_state["access_token"] is None:
     st.write("1. Click the link below to authenticate with Spotify.")
     auth_url = get_auth_url()
@@ -105,15 +103,12 @@ if st.session_state["access_token"] is None:
 else:
     st.markdown("**Choose an option:**")
 
-    # Create columns for buttons (side by side)
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
         top_tracks_button = st.button("My Top Tracks 🎶")
     with col2:
         top_artists_button = st.button("My Top Artists 🎤")
-    with col3:
-        top_uniqueness_button = st.button("How Niche Am I? ✨")
 
     top_tracks_data, top_artists_data = None, None
 
@@ -122,103 +117,38 @@ else:
     if top_artists_button:
         top_artists_data = get_top_items(st.session_state["access_token"], item_type="artists")
 
-    # Display top tracks and artists side by side if both are selected
-    if top_tracks_data and top_artists_data:
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.write("Your Top Tracks:")
-            tracks = format_top_tracks(top_tracks_data)
-
-            # Display each track's album image, track name, and artist name
-            for idx, track in enumerate(tracks, start=1):
-                col1, col2 = st.columns([1, 4])  # Adjust columns ratio for image and text
-
-                with col1:
-                    if track["Album Image URL"]:
-                        st.image(track["Album Image URL"], caption=track["Album Name"], use_container_width=True, width=100)  # Image scaled
-                    else:
-                        st.write(f"Image not available")
-
-                with col2:
-                    st.markdown(f"**{idx}. {track['Name']}** by {track['Artist']}", unsafe_allow_html=True)
-
-        with col2:
-            st.write("Your Top Artists:")
-            artists = format_top_artists(top_artists_data)
-
-            # Display each artist's image and name in a numbered list
-            for idx, artist in enumerate(artists, start=1):
-                col1, col2 = st.columns([1, 4])  # Adjust columns ratio for image and text
-
-                with col1:
-                    if artist["Image URL"]:
-                        st.image(artist["Image URL"], caption=artist["Name"], use_container_width=True, width=100)  # Image scaled
-                    else:
-                        st.write(f"Image not available")
-
-                with col2:
-                    st.markdown(f"**{idx}. {artist['Name']}**", unsafe_allow_html=True)
-
-    elif top_tracks_data:
+    if top_tracks_data:
         st.write("Your Top Tracks:")
         tracks = format_top_tracks(top_tracks_data)
 
-        # Display each track's album image, track name, and artist name
         for idx, track in enumerate(tracks, start=1):
-            col1, col2 = st.columns([1, 4])  # Adjust columns ratio for image and text
+            col1, col2 = st.columns([1, 4])
 
             with col1:
                 if track["Album Image URL"]:
-                    st.image(track["Album Image URL"], caption=track["Album Name"], use_container_width=True, width=100)  # Image scaled
+                    st.image(track["Album Image URL"], caption=track["Album Name"], use_container_width=True, width=100)
                 else:
-                    st.write(f"Image not available")
+                    st.write("Image not available")
 
             with col2:
                 st.markdown(f"**{idx}. {track['Name']}** by {track['Artist']}", unsafe_allow_html=True)
+                if track["Track Preview URL"]:
+                    st.audio(track["Track Preview URL"], format="audio/mp3")
 
-    elif top_artists_data:
+    if top_artists_data:
         st.write("Your Top Artists:")
         artists = format_top_artists(top_artists_data)
 
-        # Display each artist's image and name in a numbered list
         for idx, artist in enumerate(artists, start=1):
-            col1, col2 = st.columns([1, 4])  # Adjust columns ratio for image and text
+            col1, col2 = st.columns([1, 4])
 
             with col1:
                 if artist["Image URL"]:
-                    st.image(artist["Image URL"], caption=artist["Name"], use_container_width=True, width=100)  # Image scaled
+                    st.image(artist["Image URL"], caption=artist["Name"], use_container_width=True, width=100)
                 else:
-                    st.write(f"Image not available")
+                    st.write("Image not available")
 
             with col2:
                 st.markdown(f"**{idx}. {artist['Name']}**", unsafe_allow_html=True)
-
-    if top_uniqueness_button:
-        top_tracks_data = get_top_items(st.session_state["access_token"], item_type="tracks")
-        top_artists_data = get_top_items(st.session_state["access_token"], item_type="artists")
-
-        if top_tracks_data and top_artists_data:
-            tracks = format_top_tracks(top_tracks_data)
-            artists = format_top_artists(top_artists_data)
-
-            avg_track_popularity = sum(track["Popularity"] for track in tracks) / len(tracks)
-            avg_artist_popularity = sum(artist["Popularity"] for artist in artists) / len(artists)
-
-            st.header("How Niche is Your Music Taste?")
-            col1, col2 = st.columns(2)
-
-            with col1:
-                st.subheader("Average Track Popularity")
-                st.markdown(f"<h1 style='text-align: center; color: green;'>{avg_track_popularity:.2f}</h1>", unsafe_allow_html=True)
-
-            with col2:
-                st.subheader("Average Artist Popularity")
-                st.markdown(f"<h1 style='text-align: center; color: blue;'>{avg_artist_popularity:.2f}</h1>", unsafe_allow_html=True)
-
-            st.write("""
-            - **Lower scores** indicate a more niche music taste.
-            - **Higher scores** mean your music taste aligns with popular trends.
-            """)
-        else:
-            st.warning("Unable to calculate niche scores. Please try again.")
+                if artist["Spotify URL"]:
+                    st.markdown(f"[Listen on Spotify]({artist['Spotify URL']})", unsafe_allow_html=True)
