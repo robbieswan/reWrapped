@@ -103,6 +103,23 @@ if st.session_state["access_token"] is None:
     auth_url = get_auth_url()
     st.markdown(f"[Authenticate with Spotify]({auth_url})", unsafe_allow_html=True)
 else:
+    st.markdown("**Choose a time range:**")
+
+    col1, col2, col3 = st.columns(3)
+
+    time_range = "medium_term"  # Default
+    with col1:
+        if st.button("Short Term (4 weeks)"):
+            time_range = "short_term"
+    with col2:
+        if st.button("Medium Term (6 months)"):
+            time_range = "medium_term"
+    with col3:
+        if st.button("Long Term (~1 year)"):
+            time_range = "long_term"
+
+    st.markdown("---")  # Separator
+
     st.markdown("**Choose an option:**")
 
     col1, col2, col3, col4 = st.columns(4)
@@ -115,9 +132,9 @@ else:
     top_tracks_data, top_artists_data = None, None
 
     if top_tracks_button:
-        top_tracks_data = get_top_items(st.session_state["access_token"], item_type="tracks")
+        top_tracks_data = get_top_items(st.session_state["access_token"], item_type="tracks", time_range=time_range)
     if top_artists_button:
-        top_artists_data = get_top_items(st.session_state["access_token"], item_type="artists")
+        top_artists_data = get_top_items(st.session_state["access_token"], item_type="artists", time_range=time_range)
 
     if top_tracks_data:
         st.write("Your Top Tracks:")
