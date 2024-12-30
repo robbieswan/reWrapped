@@ -133,8 +133,9 @@ else:
                     st.write("Image not available")
 
             with col2:
+                embed_url = track['Track URL'].replace("open.spotify.com", "embed.spotify.com")
                 st.markdown(f"**{idx}. {track['Name']}** by {track['Artist']}", unsafe_allow_html=True)
-                components.iframe(track['Track URL'], width=400, height=152, scrolling=False)
+                components.iframe(embed_url, width=400, height=152, scrolling=False)
 
     if top_artists_data:
         st.write("Your Top Artists:")
@@ -150,5 +151,6 @@ else:
                     st.write("Image not available")
 
             with col2:
+                embed_url = artist['Spotify URL'].replace("open.spotify.com", "embed.spotify.com")
                 st.markdown(f"**{idx}. {artist['Name']}**", unsafe_allow_html=True)
-                components.iframe(artist['Spotify URL'], width=400, height=152, scrolling=False)
+                components.iframe(embed_url, width=400, height=152, scrolling=False)
