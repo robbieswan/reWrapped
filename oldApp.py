@@ -85,14 +85,24 @@ def calculate_uniqueness(data):
 # Streamlit app
 st.title("Welcome to Spotify (Re)Wrapped")
 
+st.markdown("""<style>
+    div.stButton > button {
+        background-color: #f0f0f5;
+        color: black;
+        font-size: 16px;
+        height: 3em;
+        width: 12em;
+        border-radius: 10px;
+        margin: 5px;
+    }
+    div.stButton > button:focus {
+        background-color: #4CAF50;
+        color: white;
+    }
+</style>""", unsafe_allow_html=True)
+
 if "access_token" not in st.session_state:
     st.session_state["access_token"] = None
-
-if "time_range" not in st.session_state:
-    st.session_state["time_range"] = "medium_term"  # Default
-
-if "selected_option" not in st.session_state:
-    st.session_state["selected_option"] = None
 
 auth_code = st.query_params.get("code")
 
@@ -115,15 +125,13 @@ else:
 
     with col1:
         if st.button("Short Term (4 weeks)", key="short_term"):
-            st.session_state["time_range"] = "short_term"
+            time_range = "short_term"
     with col2:
         if st.button("Medium Term (6 months)", key="medium_term"):
-            st.session_state["time_range"] = "medium_term"
+            time_range = "medium_term"
     with col3:
         if st.button("Long Term (~1 year)", key="long_term"):
-            st.session_state["time_range"] = "long_term"
-
-    st.markdown(f"**Selected Time Range:** {st.session_state['time_range'].replace('_', ' ').capitalize()}")
+            time_range = "long_term"
 
     st.markdown("---")  # Separator
 
@@ -133,22 +141,20 @@ else:
 
     with col1:
         if st.button("My Top Tracks 🎶", key="top_tracks"):
-            st.session_state["selected_option"] = "tracks"
+            selected_option = "tracks"
     with col2:
         if st.button("My Top Artists 🎤", key="top_artists"):
-            st.session_state["selected_option"] = "artists"
-
-    st.markdown(f"**Selected Option:** {st.session_state['selected_option'].capitalize() if st.session_state['selected_option'] else 'None'}")
+            selected_option = "artists"
 
     top_tracks_data, top_artists_data = None, None
 
-    if st.session_state["selected_option"] == "tracks":
+    if selected_option == "tracks":
         top_tracks_data = get_top_items(
-            st.session_state["access_token"], item_type="tracks", time_range=st.session_state["time_range"]
+            st.session_state["access_token"], item_type="tracks", time_range=time_range
         )
-    if st.session_state["selected_option"] == "artists":
+    if selected_option == "artists":
         top_artists_data = get_top_items(
-            st.session_state["access_token"], item_type="artists", time_range=st.session_state["time_range"]
+            st.session_state["access_token"], item_type="artists", time_range=time_range
         )
 
     if top_tracks_data:
